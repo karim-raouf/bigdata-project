@@ -1,0 +1,48 @@
+# Use Ubuntu as base image with a specific version for reproducibility
+FROM ubuntu:22.04
+
+# Set non-interactive mode to prevent prompts during installation
+ENV DEBIAN_FRONTEND=noninteractive
+
+# Set working directory
+WORKDIR /home/doc-bd-a1/
+
+# Update package lists and install required system dependencies, including python3-pip
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    python3 \
+    python3-pip \
+    python3-venv \
+    python3-dev \
+    build-essential \
+    libssl-dev \
+    libffi-dev \
+    libblas-dev \
+    liblapack-dev \
+    gfortran \
+    libatlas-base-dev \
+    libstdc++6 \
+    curl \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
+
+# Upgrade pip, setuptools, and wheel using the system-installed pip
+RUN python3 -m pip install --no-cache-dir --upgrade \
+    pip \
+    setuptools \
+    wheel \
+    && python3 -m pip --version  # Verify pip installation
+
+# Install required Python libraries with version constraints for stability
+RUN pip3 install --no-cache-dir \
+    pandas==2.2.2 \
+    numpy==1.26.4 \
+    seaborn==0.13.2 \
+    matplotlib==3.8.4 \
+    scikit-learn==1.5.0 \
+    scipy==1.13.1
+
+# Copy dataset to container
+COPY train_corrupted.csv /home/doc-bd-a1/
+
+# Open bash shell upon container startup
+CMD ["/bin/bash"]
